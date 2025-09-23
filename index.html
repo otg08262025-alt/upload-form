@@ -15,22 +15,38 @@
     }
     .container {
       background: #fff;
-      padding: 30px 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 95%;
-      max-width: 400px;
-      height: auto;
+      border-radius: 0; /* full-screen app look */
+      box-shadow: none;
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;         /* take full screen height */
       display: flex;
-      flex-direction: column;  /* stack items vertically */
-      justify-content: center;
+      flex-direction: column;
+    }
+    /* Header Bar */
+    .header {
+      background: #0078d7;
+      color: white;
+      padding: 16px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    /* Content fills middle */
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
       align-items: stretch;
+      justify-content: center;
+      flex: 1;  /* fills available space */
     }
     h2 {
       margin-bottom: 20px;
       color: #333;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
+      text-align: center;
     }
     .file-input {
       margin: 15px 0;
@@ -53,7 +69,7 @@
       cursor: pointer;
       font-size: 1rem;
       margin: 8px 0;
-      width: 100%;   /* always full width */
+      width: 100%;
       transition: background 0.2s ease-in-out;
     }
     button:hover:not(:disabled) {
@@ -68,6 +84,7 @@
       font-size: 1rem;
       font-weight: bold;
       min-height: 22px;
+      text-align: center;
     }
     #status.success { color: green; }
     #status.error { color: red; }
@@ -97,24 +114,41 @@
       font-size: 0.95rem;
       margin-top: 8px;
       color: #555;
+      text-align: center;
       display: none;
+    }
+    /* Footer Bar */
+    .footer {
+      background: #f1f1f1;
+      padding: 12px;
+      font-size: 0.85rem;
+      color: #666;
+      text-align: center;
+      flex-shrink: 0;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Upload File</h2>
-    <form id="uploadForm">
-      <input type="file" id="fileInput" class="file-input" required />
-      <button type="submit" id="uploadBtn">Upload</button>
-    </form>
+    <div class="header">📂 File Upload</div>
+    <div class="content">
+      <h2>Select a file to upload</h2>
+      <form id="uploadForm">
+        <input type="file" id="fileInput" class="file-input" required />
+        <button type="submit" id="uploadBtn">Upload</button>
+      </form>
 
-    <div class="spinner" id="spinner"></div>
-    <p id="status"></p>
-    <p id="countdown"></p>
-    <button id="retryBtn">Retry Upload</button>
-    <button id="closeBtn">Close Tab</button>
+      <div class="spinner" id="spinner"></div>
+      <p id="status"></p>
+      <p id="countdown"></p>
+      <button id="retryBtn">Retry Upload</button>
+      <button id="closeBtn">Close Tab</button>
+    </div>
+    <div class="footer">
+      © 2025 Operations Technology Group · Secure & Simple
+    </div>
   </div>
+
   <script>
   const flowUrl = "https://default2e0f74ad066f44ea9cf9557b3c2f8d.49.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6027004eb29e446b9d31144961ae4d97/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BvvZnupoOzVkAoh5KYZJ_UsuM2knXlcPLkpRSLFAXO8";
   let countdownInterval;
@@ -218,5 +252,6 @@
     window.close();
   });
 </script>
+
 </body>
 </html>
