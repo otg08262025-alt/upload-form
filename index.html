@@ -5,24 +5,28 @@
   <title>Anonymous File Upload</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-    }
-    .container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 100%;
-      max-width: 380px;
-    }
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f9;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;   /* centers horizontally */
+  align-items: center;       /* centers vertically */
+  padding: 0;                /* remove padding offset */
+  box-sizing: border-box;
+}
+
+.container {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 90%;                /* take 90% of small screens */
+  max-width: 380px;          /* don’t exceed 380px on desktop */
+  margin: auto;              /* ensures it stays centered */
+}
+
     h2 {
       margin-bottom: 20px;
       color: #333;
