@@ -6,20 +6,20 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f6f9;
       margin: 0;
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      background: linear-gradient(to bottom, #e6f0fa, #f4f6f9);
     }
     .container {
       background: #fff;
-      border-radius: 0; /* full-screen app look */
+      border-radius: 0; /* full screen, no round edges */
       box-shadow: none;
       width: 100%;
-      max-width: 480px;
-      height: 100vh;         /* take full screen height */
+      max-width: 100%; 
+      height: 100vh;      /* occupy full mobile screen */
       display: flex;
       flex-direction: column;
     }
@@ -27,30 +27,30 @@
     .header {
       background: #0078d7;
       color: white;
-      padding: 16px;
-      font-size: 1.2rem;
+      padding: 20px;
+      font-size: 1.4rem;
       font-weight: bold;
       text-align: center;
       flex-shrink: 0;
     }
     /* Content fills middle */
     .content {
-      padding: 20px;
+      padding: 25px 20px;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
-      flex: 1;  /* fills available space */
+      justify-content: flex-start;
+      align-items: center;
+      flex: 1;
     }
     h2 {
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       color: #333;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       text-align: center;
     }
     .file-input {
-      margin: 15px 0;
-      padding: 1px;
+      margin: 20px 0;
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
       width: 100%;
@@ -68,7 +68,7 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 1rem;
-      margin: 8px 0;
+      margin: 10px 0;
       width: 100%;
       transition: background 0.2s ease-in-out;
     }
@@ -100,10 +100,10 @@
       border: 4px solid #f3f3f3;
       border-top: 4px solid #0078d7;
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 36px;
+      height: 36px;
       animation: spin 1s linear infinite;
-      margin: 12px auto;
+      margin: 15px auto;
       display: none;
     }
     @keyframes spin {
@@ -120,8 +120,8 @@
     /* Footer Bar */
     .footer {
       background: #f1f1f1;
-      padding: 12px;
-      font-size: 0.85rem;
+      padding: 16px;
+      font-size: 0.9rem;
       color: #666;
       text-align: center;
       flex-shrink: 0;
@@ -145,11 +145,11 @@
       <button id="closeBtn">Close Tab</button>
     </div>
     <div class="footer">
-      © 2025 Operations Technology Group · Secure & Simple
+      © 2025 Anonymous Upload · Secure & Simple
     </div>
   </div>
 
-  <script>
+<script>
   const flowUrl = "https://default2e0f74ad066f44ea9cf9557b3c2f8d.49.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6027004eb29e446b9d31144961ae4d97/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BvvZnupoOzVkAoh5KYZJ_UsuM2knXlcPLkpRSLFAXO8";
   let countdownInterval;
 
