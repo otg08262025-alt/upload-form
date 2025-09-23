@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anonymous File Upload</title>
+</head>
+<body>
+  <h2>Upload File</h2>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" required />
+    <button type="submit">Upload</button>
+  </form>
+
+  <p id="status"></p>
+  <button id="closeBtn" style="display:none;">Close Tab</button>
+
+<script>
+  const flowUrl = "https://default2e0f74ad066f44ea9cf9557b3c2f8d.49.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6027004eb29e446b9d31144961ae4d97/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BvvZnupoOzVkAoh5KYZJ_UsuM2knXlcPLkpRSLFAXO8";
+
+  document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert("Please select a file!");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const base64Data = reader.result.split(",")[1];
+
+      const body = {
+        filename: file.name,
+        file: base64Data
+      };
+
+      try {
+        const response = await fetch(flowUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+        });
+
+        const result = await response.json().catch(() => null);
+        console.log("Flow response:", result);
+
+        if (response.ok) {
+          document.getElementById("status").innerText = "✅ File uploaded successfully!";
+          document.getElementById("closeBtn").style.display = "inline-block";
+        } else {
+          document.getElementById("status").innerText = "❌ Upload failed! " + (result?.message || "");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        document.getElementById("status").innerText = "❌ Upload failed (network error)";
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Close tab button
+  document.getElementById("closeBtn").addEventListener("click", () => {
+    window.close();
+  });
+</script>
+
+</body>
+</html>
