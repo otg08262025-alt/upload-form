@@ -1,46 +1,168 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile scaling -->
   <title>Anonymous File Upload</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.4rem;
+    }
+    .file-input {
+      display: block;
+      margin: 15px auto;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      font-size: 1rem;
+      background-color: #fafafa;
+    }
+    .file-input:hover {
+      border-color: #0078d7;
+    }
+    button {
+      background: #0078d7;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 6px 4px;
+      width: 100%;
+      max-width: 180px;
+      transition: background 0.2s ease-in-out;
+    }
+    button:hover:not(:disabled) {
+      background: #005fa3;
+    }
+    button:disabled {
+      background: #a0a0a0;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 15px;
+      font-size: 1rem;
+      font-weight: bold;
+      word-wrap: break-word;
+    }
+    #status.success { color: green; }
+    #status.error { color: red; }
+    #closeBtn {
+      display: none;
+      background: #d83b01;
+    }
+    #closeBtn:hover { background: #a82e00; }
+    #retryBtn {
+      display: none;
+      background: #28a745;
+    }
+    #retryBtn:hover { background: #1f7e34; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0078d7;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      animation: spin 1s linear infinite;
+      margin: 12px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #countdown {
+      font-size: 0.9rem;
+      margin-top: 8px;
+      color: #555;
+      display: none;
+    }
+    /* 📱 Extra tweaks for very small screens */
+    @media (max-width: 400px) {
+      h2 {
+        font-size: 1.2rem;
+      }
+      button {
+        font-size: 0.95rem;
+        padding: 10px 14px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h2>Upload File</h2>
-  <form id="uploadForm">
-    <input type="file" id="fileInput" required />
-    <button type="submit">Upload</button>
-  </form>
+  <div class="container">
+    <h2>Upload File</h2>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" class="file-input" required />
+      <br />
+      <button type="submit" id="uploadBtn">Upload</button>
+    </form>
 
-  <p id="status"></p>
-  <button id="closeBtn" style="display:none;">Close Tab</button>
+    <div class="spinner" id="spinner"></div>
+    <p id="status"></p>
+    <p id="countdown"></p>
+    <button id="retryBtn">Retry Upload</button>
+    <button id="closeBtn">Close Tab</button>
+  </div>
 
 <script>
   const flowUrl = "https://default2e0f74ad066f44ea9cf9557b3c2f8d.49.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6027004eb29e446b9d31144961ae4d97/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BvvZnupoOzVkAoh5KYZJ_UsuM2knXlcPLkpRSLFAXO8";
+  let countdownInterval;
 
-  document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fileInput = document.getElementById("fileInput");
-    const file = fileInput.files[0];
+  async function uploadFile(file) {
+    const uploadBtn = document.getElementById("uploadBtn");
+    const spinner = document.getElementById("spinner");
+    const statusEl = document.getElementById("status");
+    const closeBtn = document.getElementById("closeBtn");
+    const retryBtn = document.getElementById("retryBtn");
+    const countdownEl = document.getElementById("countdown");
 
-    if (!file) {
-      alert("Please select a file!");
-      return;
-    }
+    // Reset UI
+    statusEl.innerText = "";
+    statusEl.className = "";
+    closeBtn.style.display = "none";
+    retryBtn.style.display = "none";
+    countdownEl.style.display = "none";
+    clearInterval(countdownInterval);
+
+    // Disable button + show spinner
+    uploadBtn.disabled = true;
+    spinner.style.display = "block";
+    statusEl.innerText = "⏳ Uploading...";
 
     const reader = new FileReader();
     reader.onload = async function () {
       const base64Data = reader.result.split(",")[1];
+      const body = { filename: file.name, file: base64Data };
 
-      const body = {
-        filename: file.name,
-        file: base64Data
-      };
+      let success = false;
 
       try {
         const response = await fetch(flowUrl, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body)
         });
 
@@ -48,21 +170,63 @@
         console.log("Flow response:", result);
 
         if (response.ok) {
-          document.getElementById("status").innerText = "✅ File uploaded successfully!";
-          document.getElementById("closeBtn").style.display = "inline-block";
+          statusEl.innerText = "✅ File uploaded successfully!";
+          statusEl.className = "success";
+          success = true;
         } else {
-          document.getElementById("status").innerText = "❌ Upload failed! " + (result?.message || "");
+          statusEl.innerText = "❌ Upload failed! " + (result?.message || "");
+          statusEl.className = "error";
         }
       } catch (err) {
         console.error("Error:", err);
-        document.getElementById("status").innerText = "❌ Upload failed (network error)";
+        statusEl.innerText = "❌ Upload failed (network error)";
+        statusEl.className = "error";
+      } finally {
+        spinner.style.display = "none"; 
+        uploadBtn.disabled = false;     
+        closeBtn.style.display = "inline-block"; 
+
+        if (success) {
+          // Auto-close on success
+          let countdown = 5;
+          countdownEl.style.display = "block";
+          countdownEl.innerText = `This tab will close in ${countdown} seconds...`;
+
+          countdownInterval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+              countdownEl.innerText = `This tab will close in ${countdown} seconds...`;
+            } else {
+              clearInterval(countdownInterval);
+              window.close();
+            }
+          }, 1000);
+        } else {
+          // Show retry button if failed
+          retryBtn.style.display = "inline-block";
+        }
       }
     };
     reader.readAsDataURL(file);
+  }
+
+  document.getElementById("uploadForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const file = document.getElementById("fileInput").files[0];
+    if (!file) {
+      alert("Please select a file!");
+      return;
+    }
+    uploadFile(file);
   });
 
-  // Close tab button
+  document.getElementById("retryBtn").addEventListener("click", () => {
+    const file = document.getElementById("fileInput").files[0];
+    if (file) uploadFile(file);
+  });
+
   document.getElementById("closeBtn").addEventListener("click", () => {
+    clearInterval(countdownInterval);
     window.close();
   });
 </script>
