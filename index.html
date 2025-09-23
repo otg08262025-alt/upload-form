@@ -1,40 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anonymous File Upload</title>
   <style>
-        body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f6f9;
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;   /* centers horizontally */
-        align-items: center;       /* centers vertically */
-        padding: 0;                /* remove padding offset */
-        box-sizing: border-box;
-        }
-
-        .container {
-        background: #fff;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        text-align: center;
-        width: 90%;                /* take 90% of small screens */
-        max-width: 380px;          /* don’t exceed 380px on desktop */
-        margin: auto;              /* ensures it stays centered */
-        }
-
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: #fff;
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 95%;
+      max-width: 400px;
+      height: auto;
+      display: flex;
+      flex-direction: column;  /* stack items vertically */
+      justify-content: center;
+      align-items: stretch;
+    }
     h2 {
       margin-bottom: 20px;
       color: #333;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
     }
     .file-input {
-      display: block;
-      margin: 15px auto;
+      margin: 15px 0;
       padding: 1px;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -49,13 +48,12 @@
       background: #0078d7;
       color: white;
       border: none;
-      padding: 12px 18px;
+      padding: 14px;
       border-radius: 6px;
       cursor: pointer;
       font-size: 1rem;
-      margin: 6px 4px;
-      width: 100%;
-      max-width: 180px;
+      margin: 8px 0;
+      width: 100%;   /* always full width */
       transition: background 0.2s ease-in-out;
     }
     button:hover:not(:disabled) {
@@ -69,7 +67,7 @@
       margin-top: 15px;
       font-size: 1rem;
       font-weight: bold;
-      word-wrap: break-word;
+      min-height: 22px;
     }
     #status.success { color: green; }
     #status.error { color: red; }
@@ -77,18 +75,16 @@
       display: none;
       background: #d83b01;
     }
-    #closeBtn:hover { background: #a82e00; }
     #retryBtn {
       display: none;
       background: #28a745;
     }
-    #retryBtn:hover { background: #1f7e34; }
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #0078d7;
       border-radius: 50%;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       animation: spin 1s linear infinite;
       margin: 12px auto;
       display: none;
@@ -98,20 +94,10 @@
       100% { transform: rotate(360deg); }
     }
     #countdown {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       margin-top: 8px;
       color: #555;
       display: none;
-    }
-    /* 📱 Extra tweaks for very small screens */
-    @media (max-width: 400px) {
-      h2 {
-        font-size: 1.2rem;
-      }
-      button {
-        font-size: 0.95rem;
-        padding: 10px 14px;
-      }
     }
   </style>
 </head>
@@ -120,7 +106,6 @@
     <h2>Upload File</h2>
     <form id="uploadForm">
       <input type="file" id="fileInput" class="file-input" required />
-      <br />
       <button type="submit" id="uploadBtn">Upload</button>
     </form>
 
@@ -130,8 +115,7 @@
     <button id="retryBtn">Retry Upload</button>
     <button id="closeBtn">Close Tab</button>
   </div>
-
-<script>
+  <script>
   const flowUrl = "https://default2e0f74ad066f44ea9cf9557b3c2f8d.49.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6027004eb29e446b9d31144961ae4d97/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BvvZnupoOzVkAoh5KYZJ_UsuM2knXlcPLkpRSLFAXO8";
   let countdownInterval;
 
@@ -234,6 +218,5 @@
     window.close();
   });
 </script>
-
 </body>
 </html>
