@@ -1,25 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anonymous File Upload</title>
+  <title>Safety Observation Portal</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       background: linear-gradient(135deg, #0078d7, #00b4d8);
       color: #333;
     }
+    header {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #0078d7;
+    }
+    .container {
+      max-width: 960px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    /* Spinner */
+    .form-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0078d7;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 40px auto;
+      display: block;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 70vh;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      display: none; /* hide until loaded */
+    }
+
+    .toggle-btn {
+      display: block;
+      margin: 30px auto 20px;
+      background: linear-gradient(135deg, #0078d7, #00b4d8);
+      color: white;
+      border: none;
+      padding: 14px 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .toggle-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+    }
+
     .card {
+      display: none;
       background: #fff;
       border-radius: 16px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      width: 95%;
-      max-width: 420px;
       padding: 30px 25px;
       text-align: center;
       animation: fadeIn 0.6s ease;
@@ -48,12 +103,7 @@
     .file-input:hover {
       border-color: #0078d7;
     }
-    .file-input:disabled {
-      background-color: #f1f1f1;
-      border-color: #ccc;
-      cursor: not-allowed;
-    }
-    button {
+    button.upload-btn {
       background: linear-gradient(135deg, #0078d7, #00b4d8);
       color: white;
       border: none;
@@ -65,13 +115,9 @@
       width: 100%;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    button:hover:not(:disabled) {
+    button.upload-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-    }
-    button:disabled {
-      background: #a0a0a0;
-      cursor: not-allowed;
     }
     #status {
       margin-top: 15px;
@@ -81,6 +127,8 @@
     }
     #status.success { color: #28a745; }
     #status.error { color: #d83b01; }
+
+    /* Upload Spinner */
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #0078d7;
@@ -91,10 +139,7 @@
       margin: 20px auto;
       display: none;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+
     /* Code Section */
     #codeSection {
       display: none;
@@ -118,6 +163,9 @@
       padding: 10px 20px;
       border-radius: 8px;
       font-size: 0.95rem;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
     }
     #countdown {
       margin-top: 10px;
@@ -125,40 +173,74 @@
       color: #d83b01;
       display: none;
     }
-    .footer {
-      font-size: 0.8rem;
-      color: #888;
-      margin-top: 20px;
-    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="header">📂 Anonymous File Upload</div>
-    <form id="uploadForm">
-      <input type="file" id="fileInput" class="file-input" required />
-      <button type="submit" id="uploadBtn">Upload File</button>
-    </form>
 
-    <div class="spinner" id="spinner"></div>
-    <p id="status"></p>
+  <header>
+    <h1>📋 Safety Observation Portal</h1>
+  </header>
 
-    <div id="codeSection">
-      <p>Your attachment code:</p>
-      <div id="randomCode"></div>
-      <button id="copyBtn">Copy Code</button>
-      <p id="countdown"></p>
+  <div class="container">
+    <!-- Loading spinner for form -->
+    <div id="formSpinner" class="form-spinner"></div>
+
+    <!-- Embedded MS Form -->
+    <iframe 
+      id="msForm"
+      src="https://forms.office.com/Pages/ResponsePage.aspx?id=rXQPLm8G6kSc-VV7PC-NSeWT8yXfPp1Jnc9wKq4L7J9UMERCSURWRVg1SThXVkhVU1hYSTZSVzNSTi4u&r388ad2dde4704c85a4bfca0f7a0468b8=0001&r598411bb4c17426b92deb8699b9b1fe2=%22Batam%22" 
+      allowfullscreen 
+      webkitallowfullscreen 
+      mozallowfullscreen 
+      msallowfullscreen>
+    </iframe>
+
+    <!-- Toggle Upload Button -->
+    <button class="toggle-btn" id="showUpload">+ Add File Attachment</button>
+
+    <!-- File Upload Section -->
+    <div class="card" id="uploadSection">
+      <div class="header">📂 Anonymous File Upload</div>
+      <form id="uploadForm">
+        <input type="file" id="fileInput" class="file-input" required />
+        <button type="submit" class="upload-btn" id="uploadBtn">Upload File</button>
+      </form>
+
+      <div class="spinner" id="spinner"></div>
+      <p id="status"></p>
+
+      <div id="codeSection">
+        <p>Your attachment code:</p>
+        <div id="randomCode"></div>
+        <button id="copyBtn">Copy Code</button>
+        <p id="countdown"></p>
+      </div>
     </div>
-
-    <button id="retryBtn" style="display:none;">Retry Upload</button>
-
-    <div class="footer">© 2025 Secure & Simple</div>
   </div>
 
 <script>
+  const showUploadBtn = document.getElementById("showUpload");
+  const uploadSection = document.getElementById("uploadSection");
+
   const flowUrl = "https://default2e0f74ad066f44ea9cf9557b3c2f8d.49.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6027004eb29e446b9d31144961ae4d97/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BvvZnupoOzVkAoh5KYZJ_UsuM2knXlcPLkpRSLFAXO8"; 
-  const CLOSE_DELAY = 5; // seconds before auto-close
-  const CODE_LENGTH = 6; // adjust code length easily
+  const CLOSE_DELAY = 5;
+  const CODE_LENGTH = 6;
+
+  // Show spinner until form loads
+  const msForm = document.getElementById("msForm");
+  const formSpinner = document.getElementById("formSpinner");
+  msForm.addEventListener("load", () => {
+    formSpinner.style.display = "none";
+    msForm.style.display = "block";
+  });
+
+  // Show/hide upload card
+  showUploadBtn.addEventListener("click", () => {
+    uploadSection.style.display = uploadSection.style.display === "block" ? "none" : "block";
+    showUploadBtn.innerText = uploadSection.style.display === "block" 
+      ? "− Hide File Attachment" 
+      : "+ Add File Attachment";
+  });
 
   function generateCode() {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -174,17 +256,13 @@
     const fileInput = document.getElementById("fileInput");
     const spinner = document.getElementById("spinner");
     const statusEl = document.getElementById("status");
-    const retryBtn = document.getElementById("retryBtn");
     const codeSection = document.getElementById("codeSection");
     const randomCodeEl = document.getElementById("randomCode");
 
-    // Reset UI
     statusEl.innerText = "";
     statusEl.className = "";
-    retryBtn.style.display = "none";
     codeSection.style.display = "none";
 
-    // Disable input + show spinner
     uploadBtn.disabled = true;
     fileInput.disabled = true; 
     spinner.style.display = "block";
@@ -205,8 +283,6 @@
         });
 
         const result = await response.json().catch(() => null);
-        console.log("Flow response:", result);
-
         if (response.ok) {
           statusEl.innerText = "✅ File uploaded successfully!";
           statusEl.className = "success";
@@ -216,7 +292,6 @@
           statusEl.className = "error";
         }
       } catch (err) {
-        console.error("Error:", err);
         statusEl.innerText = "❌ Upload failed (network error)";
         statusEl.className = "error";
       } finally {
@@ -224,15 +299,12 @@
         uploadBtn.disabled = false;     
 
         if (success) {
-          fileInput.disabled = true;
           uploadBtn.style.display = "none"; 
-
           const code = generateCode();
           randomCodeEl.innerText = code;
           codeSection.style.display = "block";
         } else {
           fileInput.disabled = false;
-          retryBtn.style.display = "inline-block";
         }
       }
     };
@@ -247,11 +319,6 @@
       return;
     }
     uploadFile(file);
-  });
-
-  document.getElementById("retryBtn").addEventListener("click", () => {
-    const file = document.getElementById("fileInput").files[0];
-    if (file) uploadFile(file);
   });
 
   document.getElementById("copyBtn").addEventListener("click", () => {
